@@ -42,6 +42,10 @@
                 <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" value="{{ old('cliente_nombre') }}" required>
             </div>
             <div class="mb-3">
+                <label for="descripcion" class="form-label">descripcion</label>
+                <input type="text" class="form-control" id="descripcion" name="descripcion" value="{{ old('descripcion')    }}" required>
+            </div>
+            <div class="mb-3">
                 <label for="vendedor" class="form-label">Nombre del Vendedor</label>
                 <input type="text" class="form-control" id="vendedor" name="vendedor" value="{{ old('vendedor') }}" required>
             </div>
@@ -64,8 +68,8 @@
                         <input type="number" class="form-control cantidad" name="detalles[0][cantidad]" required value="{{ old('detalles.0.cantidad', 1) }}" min="1">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Precio Unitario</label>
-                        <input type="number" step="0.01" class="form-control precio_unitario" name="detalles[0][precio_unitario]" required value="{{ old('detalles.0.precio_unitario', 0) }}" min="0">
+                        <label class="form-label">valor unitario</label>
+                        <input type="number" step="0.01" class="form-control valor_unitario" name="detalles[0][valor_unitario]" required value="{{ old('detalles.0.valor_unitario', 0) }}" min="0">
                     </div>
                 </div>
             </div>

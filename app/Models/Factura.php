@@ -20,8 +20,13 @@ class Factura extends Model
         'estado',
         'valor_total',
     ];
+    protected $casts = [
+    'fecha' => 'datetime',
+];
+
     public function detalles(): HasMany
     {
         return $this->hasMany(FacturaDetalle::class); // Una factura tiene muchos detalles 
     }
+
 }

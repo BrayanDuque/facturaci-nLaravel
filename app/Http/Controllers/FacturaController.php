@@ -19,9 +19,10 @@ public function create(): View
 {
     return view('facturas.created');
 }
-public function store(Request $request): RedirectResponse
+public function store(Request $request)
 {
     // Validar los datos de entrada
+    
     $request->validate([
         'numero' => 'required|unique:facturas', // Número único y no vacío 
         'fecha' => 'required|date', // Fecha obligatoria 
@@ -49,7 +50,6 @@ public function store(Request $request): RedirectResponse
         'detalles.*.precio_unitario.numeric' => 'El precio unitario debe ser un número.',
         'detalles.*.precio_unitario.min' => 'El precio unitario no puede ser negativo.',
     ]);
-
     // Comenzar la transacción
     try {
 
@@ -86,6 +86,7 @@ public function store(Request $request): RedirectResponse
         return redirect()->route('facturas.index')->with('success', 'Factura creada exitosamente.');
     } catch (\Exception $e) {
         // Deshacer la transacción 
+        return $e;
         // Se utiliza el método rollBack para deshacer la transacción
         // Se utiliza el método back para redirigir a la vista anterior
         DB::rollBack();

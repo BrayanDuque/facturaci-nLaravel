@@ -14,7 +14,7 @@ class FacturaDetalle extends Model
         'factura_id',
         'articulo',
         'cantidad',
-        'precio_unitario',
+        'valor_unitario',
         'subtotal',
     ];
 

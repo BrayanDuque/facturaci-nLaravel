@@ -9,7 +9,7 @@
 <body>
     <div class="container mt-5">
         <h1>Listado de Facturas</h1>
-        <a href="{{ route('facturas.create') }}" class="btn btn-primary mb-3">Crear Nueva Factura</a>
+        <a href="{{ route('facturas.created') }}" class="btn btn-primary mb-3">Crear Nueva Factura</a>
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
