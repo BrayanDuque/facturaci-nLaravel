@@ -22,7 +22,6 @@ public function create(): View
 public function store(Request $request)
 {
     // Validar los datos de entrada
-    
     $request->validate([
         'numero' => 'required|unique:facturas', // Número único y no vacío 
         'fecha' => 'required|date', // Fecha obligatoria 
@@ -31,7 +30,7 @@ public function store(Request $request)
         'estado' => 'required|boolean', // Estado obligatorio 
         'detalles.*.articulo' => 'required', // Artículo obligatorio
         'detalles.*.cantidad' => 'required|integer|min:1', // Cantidad obligatoria, entera y positiva
-        'detalles.*.precio_unitario' => 'required|numeric|min:0', // Precio obligatorio, numérico y no negativo
+        'detalles.*.valor_unitario' => 'required|numeric|min:0', // Precio obligatorio, numérico y no negativo
     ], [
         // Mensajes personalizados de validación
         'numero.required' => 'El número de factura es obligatorio.',
@@ -46,9 +45,9 @@ public function store(Request $request)
         'detalles.*.cantidad.required' => 'La cantidad es obligatoria.',
         'detalles.*.cantidad.integer' => 'La cantidad debe ser un número entero.',
         'detalles.*.cantidad.min' => 'La cantidad debe ser al menos 1.',
-        'detalles.*.precio_unitario.required' => 'El precio unitario es obligatorio.',
-        'detalles.*.precio_unitario.numeric' => 'El precio unitario debe ser un número.',
-        'detalles.*.precio_unitario.min' => 'El precio unitario no puede ser negativo.',
+        'detalles.*.valor_unitario.required' => 'El valor unitario es obligatorio.',
+        'detalles.*.valor_unitario.numeric' => 'El valor unitario debe ser un número.',
+        'detalles.*.valor_unitario.min' => 'El valor unitario no puede ser negativo.',
     ]);
     // Comenzar la transacción
     try {
@@ -62,14 +61,14 @@ public function store(Request $request)
         // Crear los detalles de la factura
         // Se utiliza el método create para insertar cada detalle en la base de datos
         foreach ($request->input('detalles') as $detalle) {
-            $subtotal = $detalle['cantidad'] * $detalle['precio_unitario']; // Calcular subtotal 
+            $subtotal = $detalle['cantidad'] * $detalle['valor_unitario']; // Calcular subtotal 
             $valorTotal += $subtotal;
             // Se utiliza el método create para insertar cada detalle en la base de datos
             FacturaDetalle::create([
                 'factura_id' => $factura->id,
                 'articulo' => $detalle['articulo'],
                 'cantidad' => $detalle['cantidad'],
-                'precio_unitario' => $detalle['precio_unitario'],
+                'valor_unitario' => $detalle['valor_unitario'],
                 'subtotal' => $subtotal,
             ]);
         }
