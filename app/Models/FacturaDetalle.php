@@ -20,6 +20,6 @@ class FacturaDetalle extends Model
 
     public function factura(): BelongsTo
     {
-        return $this->belongsTo(Factura::class); // Un detalle pertenece a una factura [cite: 6]
+        return $this->belongsTo(Factura::class); // Un detalle pertenece a una factura 
     }
 }

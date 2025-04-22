@@ -22,6 +22,6 @@ class Factura extends Model
     ];
     public function detalles(): HasMany
     {
-        return $this->hasMany(FacturaDetalle::class); // Una factura tiene muchos detalles [cite: 6]
+        return $this->hasMany(FacturaDetalle::class); // Una factura tiene muchos detalles 
     }
 }
