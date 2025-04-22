@@ -10,11 +10,26 @@ use Illuminate\Support\Facades\DB;
 
 class FacturaController extends Controller
 {
-    public function index(): View
-{
-    $facturas = Factura::all();
-    return view('facturas.index', compact('facturas'));
-}
+ public function index(Request $request): View
+    {
+        $searchTerm = $request->input('search');
+        $filterField = $request->input('filter_field');
+        $perPage = 6;
+
+        $facturas = Factura::query();
+
+        if ($searchTerm && $filterField) {
+            if ($filterField == 'fecha') {
+                $facturas->whereDate($filterField, '=', $searchTerm);
+            } else {
+                $facturas->where($filterField, 'LIKE', '%' . $searchTerm . '%');
+            }
+        }
+
+        $facturas = $facturas->paginate($perPage)->withQueryString();
+
+        return view('facturas.index', compact('facturas', 'searchTerm', 'filterField'));
+    }
 public function create(): View
 {
     return view('facturas.created');

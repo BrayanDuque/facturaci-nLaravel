@@ -10,7 +10,7 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-12">
-                <h1 class="text-center mb-4">Detalle de Factura</h1>
+                <h1 class="text-center mb-4 fw-bold">Detalle de Factura</h1>
             </div>
         </div>
 
@@ -33,8 +33,9 @@
                         </p>
                     </div>
                 </div>
+            
 
-                <h2 class="h4 mb-3">Detalles de la Factura</h2>
+                <h2 class="h4 mb-3 fw-bold">Detalles de la Factura</h2>
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead class="table-light">
@@ -63,7 +64,7 @@
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
-                    <a href="{{ route('facturas.index') }}" class="btn btn-secondary btn-lg">
+                    <a href="{{ route('facturas.index') }}" class="btn btn-secondary btn-lg fw-semibold">
                         <i class="bi bi-arrow-left"></i> Volver al Listado
                     </a>
                 </div>
