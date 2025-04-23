@@ -7,9 +7,91 @@ use Illuminate\Http\Request;
 use App\Models\FacturaDetalle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator; //  Para validación
+
+
+
 
 class FacturaController extends Controller
 {
+
+    public function indexApi(Request $request): JsonResponse
+{
+    $searchTerm = $request->input('search');
+    $filterField = $request->input('filter_field');
+    $perPage = 10;
+
+    $facturas = Factura::query();
+
+    if ($searchTerm && $filterField) {
+        if ($filterField == 'fecha') {
+            $facturas->whereDate($filterField, '=', $searchTerm);
+        } else {
+            $facturas->where($filterField, 'LIKE', '%' . $searchTerm . '%');
+        }
+    }
+
+    $facturas = $facturas->paginate($perPage)->withQueryString();
+
+    return response()->json($facturas); // Devuelve JSON
+}
+public function showApi(Factura $factura): JsonResponse
+{
+    return response()->json($factura->load('detalles')); // Carga los detalles y devuelve JSON
+}
+public function storeApi(Request $request): JsonResponse
+{
+    $validator = Validator::make($request->all(), [
+        'numero' => 'required|unique:facturas',
+        'fecha' => 'required|date',
+        'cliente_nombre' => 'required',
+        'vendedor' => 'required',
+        'estado' => 'required|boolean',
+        'detalles.*.articulo' => 'required',
+        'detalles.*.cantidad' => 'required|integer|min:1',
+        'detalles.*.precio_unitario' => 'required|numeric|min:0',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422); //  Código de error para validación fallida
+    }
+
+    try {
+        DB::beginTransaction();
+
+        $facturaData = $request->except('detalles');
+        $factura = Factura::create($facturaData);
+        $valorTotal = 0;
+
+        foreach ($request->input('detalles') as $detalle) {
+            $subtotal = $detalle['cantidad'] * $detalle['precio_unitario'];
+            $valorTotal += $subtotal;
+
+            FacturaDetalle::create([
+                'factura_id' => $factura->id,
+                'articulo' => $detalle['articulo'],
+                'cantidad' => $detalle['cantidad'],
+                'precio_unitario' => $detalle['precio_unitario'],
+                'subtotal' => $subtotal,
+            ]);
+        }
+
+        $factura->update(['valor_total' => $valorTotal]);
+
+        DB::commit();
+
+        return response()->json(['message' => 'Factura creada exitosamente.', 'factura' => $factura], 201); //  Código 201 para "Creado"
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => 'Error al crear la factura: ' . $e->getMessage()], 500); //  Código 500 para error interno del servidor
+    }
+}
+public function destroyApi(Factura $factura): JsonResponse
+{
+    $factura->delete();
+    return response()->json(['message' => 'Factura eliminada exitosamente.']);
+}
  public function index(Request $request): View
     {
         $searchTerm = $request->input('search');
