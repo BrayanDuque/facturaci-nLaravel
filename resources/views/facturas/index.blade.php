@@ -32,7 +32,7 @@
         @endif
 
         <!-- Filtros y búsqueda -->
-        <form action="{{ route('facturas.index') }}" method="GET" class="mb-3">
+        <form  id="filter-form" action="{{ route('facturas.index') }}" method="GET" class="mb-3">
             <div class="row g-2">
                 <div class="col-12 col-md-4">
                     <label for="filter_field" class="form-label">Filtrar por:</label>
@@ -57,7 +57,7 @@
         </form>
 
         <!-- Tabla de facturas -->
-        <div class="table-responsive">
+        <div class="table-responsive" id="facturas-container">
             <table class="table table-striped table-hover table-bordered align-middle">
                 <thead class="table-dark">
                     <tr>
@@ -110,20 +110,91 @@
             </nav>
         </div>
     </div>
+    <div id="pagination-container" class="pagination-container">
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-        let facturaId = 1; //  Ejemplo
-        fetch(`/api/facturas/${facturaId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+         const facturasContainer = document.getElementById('facturas-container').querySelector('tbody');
+        const paginationContainer = document.getElementById('pagination-container');
+        const filterForm = document.getElementById('filter-form');
+        const filterField = document.getElementById('filter_field');
+        const searchInput = document.getElementById('search');
+
+        const fetchFacturas = (url) => {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displayFacturas(data.data); //  Asume que los datos están en data.data
+                    displayPagination(data.links); //  Asume que los enlaces de paginación están en data.links
+                });
+        };
+
+        const displayFacturas = (facturas) => {
+            let html = '';
+            if (facturas.length > 0) {
+                facturas.forEach(factura => {
+                    html += `
+                        <tr>
+                            <td><span class="math-inline">\{factura\.numero\}</td\>
+                            <td>{new Date(factura.fecha).toLocaleDateString()}</td>
+                            <td>factura.cliente nombre</td><td>{factura.vendedor}</td>
+                            <td>factura.estado? ′Activa′ : ′Inactiva ′</td><td>Number(factura.valor total).toFixed(2)</td><td><ahref="/facturas/{factura.id}" class="btn btn-sm btn-info">Ver Detalles</a></td></tr>`;
+                            });
+                            } else {
+                            html = '<tr><td colspan="7">No se encontraron facturas.</td></tr>';
+                            }
+                            facturasContainer.innerHTML = html;
+                         };  
+                    };
+        const displayPagination = (links) => {
+            let html = '<nav aria-label="Paginación"><ul class="pagination">';
+            links.forEach(link => {
+                if (link.url) {
+                    html += `<li class="page-item <span class="math-inline">\{link\.active ? 'active' \: ''\}"\><a class\="page\-link" href\="</span>{link.url}" data-page="<span class="math-inline">\{new URLSearchParams\(new URL\(link\.url\)\.search\)\.get\('page'\)\}"\></span>{link.label}</a></li>`;
+                } else if (link.label === 'pagination.previous') {
+                    html += `<li class="page-item disabled"><span class="page-link">&laquo; Anterior</span></li>`;
+                } else if (link.label === 'pagination.next') {
+                    html += `<li class="page-item disabled"><span class="page-link">Siguiente &raquo;</span></li>`;
+                }
+            });
+            html += '</ul></nav>';
+            paginationContainer.innerHTML = html;
+
+            paginationContainer.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    fetchFacturas(link.href);
+                });
+            });
+        };
+
+        const getUrl = () => {
+            let url = '/api/facturas?';
+            if (filterField.value) {
+                url += `filter_field=${filterField.value}&`;
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            //  Procesa la respuesta (data)
-            console.log(data);
+            if (searchInput.value) {
+                url += `search=${searchInput.value}&`;
+            }
+            return url.slice(0, -1); //  Elimina el último '&'
+        };
+
+        //  Carga inicial de las facturas
+        fetchFacturas(getUrl());
+
+        //  Event listener para el formulario de filtro/búsqueda
+        filterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            fetchFacturas(getUrl());
         });
+        //  Event listener para el botón de limpiar
+        filterForm.addEventListener('reset', () => {
+            filterField.value = '';
+            searchInput.value = '';
+            fetchFacturas('/api/facturas');
+        });
+
     </script>
 </body>
 </html>
