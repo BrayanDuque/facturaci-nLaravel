@@ -88,6 +88,14 @@
                                     <a href="{{ route('facturas.show', $factura) }}" class="btn btn-sm btn-info fw-semibold">
                                         <i class="bi bi-eye"></i> Ver Detalles
                                     </a>
+                                     <form action="{{ route('facturas.destroy', $factura) }}" method="POST"
+                                          style="display: inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger ml-2"
+                                                onclick="return confirm('¿Estás seguro de que deseas eliminar esta factura?')">
+                                            Eliminar
+                                        </button>
                                 </td>
                             </tr>
                         @endforeach
