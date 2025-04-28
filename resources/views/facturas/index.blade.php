@@ -123,85 +123,76 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-         const facturasContainer = document.getElementById('facturas-container').querySelector('tbody');
-        const paginationContainer = document.getElementById('pagination-container');
-        const filterForm = document.getElementById('filter-form');
-        const filterField = document.getElementById('filter_field');
-        const searchInput = document.getElementById('search');
-
-        const fetchFacturas = (url) => {
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    displayFacturas(data.data); //  Asume que los datos están en data.data
-                    displayPagination(data.links); //  Asume que los enlaces de paginación están en data.links
-                });
-        };
-
-        const displayFacturas = (facturas) => {
-            let html = '';
-            if (facturas.length > 0) {
-                facturas.forEach(factura => {
-                    html += `
-                        <tr>
-                            <td><span class="math-inline">\{factura\.numero\}</td\>
-                            <td>{new Date(factura.fecha).toLocaleDateString()}</td>
-                            <td>factura.cliente nombre</td><td>{factura.vendedor}</td>
-                            <td>factura.estado? ′Activa′ : ′Inactiva ′</td><td>Number(factura.valor total).toFixed(2)</td><td><ahref="/facturas/{factura.id}" class="btn btn-sm btn-info">Ver Detalles</a></td></tr>`;
-                            });
-                            } else {
-                            html = '<tr><td colspan="7">No se encontraron facturas.</td></tr>';
-                            }
-                            facturasContainer.innerHTML = html;
-                         };  
-                    };
-        const displayPagination = (links) => {
-            let html = '<nav aria-label="Paginación"><ul class="pagination">';
-            links.forEach(link => {
-                if (link.url) {
-                    html += `<li class="page-item <span class="math-inline">\{link\.active ? 'active' \: ''\}"\><a class\="page\-link" href\="</span>{link.url}" data-page="<span class="math-inline">\{new URLSearchParams\(new URL\(link\.url\)\.search\)\.get\('page'\)\}"\></span>{link.label}</a></li>`;
-                } else if (link.label === 'pagination.previous') {
-                    html += `<li class="page-item disabled"><span class="page-link">&laquo; Anterior</span></li>`;
-                } else if (link.label === 'pagination.next') {
-                    html += `<li class="page-item disabled"><span class="page-link">Siguiente &raquo;</span></li>`;
-                }
-            });
-            html += '</ul></nav>';
-            paginationContainer.innerHTML = html;
-
-            paginationContainer.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    fetchFacturas(link.href);
-                });
-            });
-        };
-
-        const getUrl = () => {
-            let url = '/api/facturas?';
-            if (filterField.value) {
-                url += `filter_field=${filterField.value}&`;
+       const obtenerFacturas = async () => {
+        const url = '/api/facturas'; 
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Error HTTP! Estado: ${response.status}`);
             }
-            if (searchInput.value) {
-                url += `search=${searchInput.value}&`;
+            const data = await response.json();
+            console.log('Petición GET exitosa:', data);
+            return data;
+        } catch (error) {
+            console.error('Hubo un error al realizar la petición GET:', error);
+            
+        }
+    };
+    const obtenerDetalleFactura = async (facturaId) => {
+    const url = `/api/facturas/${facturaId}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Error HTTP! Estado: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Petición GET exitosa:', data);
+        return data;
+    } catch (error) {
+        console.error('Hubo un error al realizar la petición GET:', error);
+    }
+};
+
+    const eliminarFactura = async (facturaId) => {
+        const url = `/api/facturas/${facturaId}`;
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`Error HTTP! Estado: ${response.status}`);
             }
-            return url.slice(0, -1); //  Elimina el último '&'
-        };
+            const data = await response.json();
+            console.log('Petición DELETE exitosa:', data);
+            return data;
+        } catch (error) {
+            console.error('Hubo un error al realizar la petición DELETE:', error);
+        }
+    };
+    const crearFactura = async (facturaData) => {
+        const url = '/api/facturas';
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(facturaData),
+            });
+            if (!response.ok) {
+                throw new Error(`Error HTTP! Estado: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('Petición POST exitosa:', data);
+            return data;
+        } catch (error) {
+            console.error('Hubo un error al realizar la petición POST:', error);
+        }
+    };
 
-        //  Carga inicial de las facturas
-        fetchFacturas(getUrl());
-
-        //  Event listener para el formulario de filtro/búsqueda
-        filterForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            fetchFacturas(getUrl());
-        });
-        //  Event listener para el botón de limpiar
-        filterForm.addEventListener('reset', () => {
-            filterField.value = '';
-            searchInput.value = '';
-            fetchFacturas('/api/facturas');
-        });
 
     </script>
 </body>
